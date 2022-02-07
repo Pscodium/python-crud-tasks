@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
+import datab
 
 
 white = '#ffffff'
@@ -21,9 +22,22 @@ window.resizable(False, False)
 window.configure(bg=white)
 
 def create():
+    def insert():
+        tarefa = task_entry.get()
+        data = day_combo.get()+'-'+month_combo.get()+'-'+year_combo.get()
+        descricao = description.get("1.0","end")
+        vcon = datab.ConnectDB()
+        query = "INSERT INTO tasks (task, date, description) VALUES ('"+tarefa+"','"+data+"','"+descricao+"')"
+        datab.insert(vcon, query)
+        task_entry.delete(0, END)
+        day_combo.delete(0, END)
+        month_combo.delete(0, END)
+        year_combo.delete(0, END)
+        description.delete("1.0", "end")
+
     ## FRAME DE CRIAÇÃO DE TAREFA
-    create_frame = Frame(window, width=300, height=220, bg=color1)
-    create_frame.place(x=10, y=60)
+    create_frame = Frame(window, width=300, height=250, bg=color1)
+    create_frame.place(x=10, y=40)
 
     days = []
     months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
@@ -64,11 +78,15 @@ def create():
     description = Text(create_frame, bg=white, fg=black, width=34, height=4)
     description.place(x=10, y=130)
 
+    ## BOTÃO SE INSERÇÃO DE TAREFA
+    insert_button = Button(create_frame, text='Enviar', command=insert, width=10, height=1, bg=color3, fg=black, highlightbackground=color3, highlightcolor=color3, border=0, activebackground=color3, cursor='hand2', activeforeground=white)
+    insert_button.place(x=10, y=200)
+
 
 def update():
     ## FRAME DE ATUALIZAÇÃO DE TAREFA
-    create_frame = Frame(window, width=300, height=220, bg=color3)
-    create_frame.place(x=10, y=60)
+    create_frame = Frame(window, width=300, height=250, bg=color3)
+    create_frame.place(x=10, y=40)
 
     days = []
     months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
