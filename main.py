@@ -31,6 +31,7 @@ def create():
 
     for i in range(1990, 2026):
         year.append(i)
+    year.reverse()
 
 
     ## FRAME DE CRIAÇÃO DE TAREFA
