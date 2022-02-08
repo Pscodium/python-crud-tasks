@@ -1,3 +1,4 @@
+from copyreg import constructor
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
@@ -13,7 +14,7 @@ color2 = '#FFCFC2'
 color3 = '#EDCFFF'
 
 
-class App:
+class Inicial:
     def __init__(self):
 
         self.window = tk.Tk()
@@ -23,12 +24,12 @@ class App:
         self.window.configure(bg=white)
 
         def fill():
-            app.delete(*app.get_children())
+            self.app.delete(*self.app.get_children())
             vcon = datab.ConnectDB()
             query = "SELECT task FROM tasks ORDER BY id"
             lista = datab.fill(vcon, query)
             for i in lista:
-                    app.insert("","end",values=i)
+                    self.app.insert("","end",values=i)
 
 
         def create():
@@ -97,8 +98,8 @@ class App:
         def update():
 
             def up_db():
-                selection = app.selection()[0]
-                valores=app.item(selection, "values")
+                selection = self.app.selection()[0]
+                valores=self.app.item(selection, "values")
                 item = valores[0]
 
                 tarefa = task_entry.get()
@@ -163,8 +164,8 @@ class App:
             insert_button.place(x=10, y=200)
 
         def delete():
-            selection = app.selection()[0]
-            valores=app.item(selection, "values")
+            selection = self.app.selection()[0]
+            valores=self.app.item(selection, "values")
             task = valores[0]
             vcon = datab.ConnectDB()
             query = "DELETE FROM tasks WHERE task='"+task+"'"
@@ -184,13 +185,22 @@ class App:
 
 
 
-        app = ttk.Treeview(self.window ,columns=('tarefas'), show='headings')
-        app.column('tarefas', minwidth=0, width=250)
-        app.heading('tarefas', text='TAREFAS')
-        app.place(x=330, y=40)
-
+        self.app = ttk.Treeview(self.window ,columns=('tarefas'), show='headings')
+        self.app.column('tarefas', minwidth=0, width=250)
+        self.app.heading('tarefas', text='TAREFAS')
+        self.app.place(x=330, y=40)
+        self.app.bind("<Double-1>", self.OnDoubleClick)
 
 
         fill()
         self.window.mainloop()
-app = App()
+
+    def OnDoubleClick(self,event):
+        root = tk.Tk()
+        root.geometry('200x200')
+        root.title("Deu certo")
+
+        root.mainloop()
+
+    
+construct = Inicial()
