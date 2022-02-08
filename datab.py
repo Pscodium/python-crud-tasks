@@ -34,6 +34,19 @@ def fill(connection, sql):
         print(ex)
     return res
 
+def read(connection, sql):
+    try:
+        c= connection.cursor()
+        c.execute(sql)
+        connection.commit()
+        res=c.fetchall()
+        vcon.close()
+        print('Tarefa Encontrada')
+    except Error as ex:
+        print(ex)
+    return res
+
+
 def remove(connection, sql):
     try:
         c= connection.cursor()

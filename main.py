@@ -2,6 +2,9 @@ from copyreg import constructor
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
+from venv import create
+
+from tables import Description
 import datab
 
 
@@ -33,6 +36,7 @@ class Inicial:
 
 
         def create():
+            ## FUNÇÃO QUE INSERE ITEM CRIADO DENTRO DO BANCO DE DADOS
             def insert():
                 tarefa = task_entry.get()
                 data = day_combo.get()+'-'+month_combo.get()+'-'+year_combo.get()
@@ -96,7 +100,7 @@ class Inicial:
 
 
         def update():
-
+            ## FUNÇÃO QUE GERA UMA ALTERAÇÃO NO ITEM SELECIONADO DENTRO DO BANC0 DE DADOS
             def up_db():
                 selection = self.app.selection()[0]
                 valores=self.app.item(selection, "values")
@@ -163,6 +167,7 @@ class Inicial:
             insert_button = Button(create_frame, text='Enviar', command=up_db, width=10, height=1, bg=color1, fg=black, highlightbackground=color1, highlightcolor=color1, border=0, activebackground=color1, cursor='hand2', activeforeground=white)
             insert_button.place(x=10, y=200)
 
+        ## FUNÇÃO PARA DELETAR UMA TAREFA SELECIONADA
         def delete():
             selection = self.app.selection()[0]
             valores=self.app.item(selection, "values")
@@ -173,7 +178,7 @@ class Inicial:
             fill()
 
 
-
+        ## BOTÕES DE COMANDO
         create = Button(self.window, text='Novo', activebackground=color1, command=create, bg=color1, fg=entry, cursor='hand2', border=0, highlightbackground=color1, activeforeground=black)
         create.place(x=10, y=10)
 
@@ -183,8 +188,7 @@ class Inicial:
         delete = Button(self.window, text='Remover', activebackground=color2, command=delete, bg=color2, fg=entry, cursor='hand2', border=0, highlightbackground=color2, activeforeground=black)
         delete.place(x=170, y=10)
 
-
-
+        ## TREEVIEW GLOBALIZADA PARA USO DA FUNÇÃO DOUBLE CLICK
         self.app = ttk.Treeview(self.window ,columns=('tarefas'), show='headings')
         self.app.column('tarefas', minwidth=0, width=250)
         self.app.heading('tarefas', text='TAREFAS')
@@ -195,12 +199,64 @@ class Inicial:
         fill()
         self.window.mainloop()
 
+    ## FUNÇÃO CHAMADA AO UTILIZAR DUPLO CLIQUE, ABRE O FRAME DE DESCRIÇÃO DE TAREFA
     def OnDoubleClick(self,event):
-        root = tk.Tk()
-        root.geometry('200x200')
-        root.title("Deu certo")
+        
 
-        root.mainloop()
+        create_frame = Frame(self.window, width=300, height=244, bg=color)
+        create_frame.place(x=10, y=40)
 
-    
+        task_label = Label(create_frame, text='Tarefa ', bg=white, fg=black, font=('Arial 10 bold'))
+        task_label.place(x=10, y=10)
+
+        label_task = Label(create_frame, text='', bg=color, fg=black)
+        label_task.place(x=10, y=30)
+
+        date_label = Label(create_frame, text="Data ", bg=white, fg=black, font=('Arial 10 bold'))
+        date_label.place(x=10, y=60)
+
+        label_date = Label(create_frame, text='', bg=color, fg=black)
+        label_date.place(x=10, y=80)
+
+        description_label = Label(create_frame, text="Descrição ", bg=white, fg=black, font=('Arial 10 bold'))
+        description_label.place(x=10, y=110)
+
+        label_description = Label(create_frame, text='', bg=color, fg=black)
+        label_description.place(x=10, y=130)
+
+        ## TREEVIEW CRIADA PARA LISTAGEM DOS ITENS SEM ELEMENTOS DA TUPLA
+        app = ttk.Treeview(create_frame,columns=('tarefa','data','descrição'), show='headings')
+        app.column('tarefa', minwidth=0, width=70)
+        app.column('data', minwidth=0, width=90)
+        app.column('descrição', minwidth=0, width=90)
+        app.heading('tarefa', text='TAREFA')
+        app.heading('data', text='DATA')
+        app.heading('descrição', text='DESCRIÇÃO')
+        
+        ## PEGA ITEM SELECIONADO DA TREEVIEW PRINCIPAL ORIENTADA À OBJETO E PESQUISA NA DATABASE ALGUMAS INFORMAÇÕES
+        item = self.app.selection()[0]
+        valores=self.app.item(item, "values")
+        task = valores[0]
+        vcon = datab.ConnectDB()
+        query = "SELECT task, date, description FROM tasks WHERE task='"+task+"'"
+        lista = datab.read(vcon, query)
+        ## ADICIONA ITENS CONSULTADOS NA DB DENTRO DA TREEVIEW CRIADA PARA USO ÚNICO
+        for i in lista:
+            app.insert("","end", values=i)
+
+        ## SELECIONA PRIMEIRO ITEM DESSA TREEVIEW 
+        child_id = app.get_children()[-1] 
+        app.focus(child_id)
+        app.selection_set(child_id)
+
+        ## A PARTIR DESSE ITEM SELECIONADO TRANSFORMAMOS EM UMA LISTA COM OS VALORES DENTRO DELA
+        selected = app.selection()[0]
+        valores=app.item(selected, "values")
+
+        ## CADA LABEL VAZIA GANHA UM ITEM DE CADA POSIÇÃO DA LISTA VALORES
+        label_task['text'] = valores[0]
+        label_date['text'] = valores[1]
+        label_description['text'] = valores[2]
+
+
 construct = Inicial()
