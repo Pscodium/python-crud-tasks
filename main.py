@@ -110,12 +110,12 @@ class Inicial:
             description_label = Label(create_frame, text='Descrição', bg=color1, fg=black)
             description_label.place(x=10, y=110)
 
-            description = Text(create_frame, bg=white, fg=black, width=34, height=4)
+            description = Text(create_frame, bg=white, fg=black, width=34, height=4, highlightbackground=white, highlightcolor=white, border=0)
             description.place(x=10, y=130)
 
             ## BOTÃO SE INSERÇÃO DE TAREFA
             insert_button = Button(create_frame, text='Enviar', command=insert, width=10, height=1, bg=color3, fg=black, highlightbackground=color3, highlightcolor=color3, border=0, activebackground=color3, cursor='hand2', activeforeground=white)
-            insert_button.place(x=10, y=200)
+            insert_button.place(x=10, y=205)
 
 
         def update():
@@ -201,12 +201,12 @@ class Inicial:
             description_label = Label(create_frame, text='Descrição', bg=color3, fg=black)
             description_label.place(x=10, y=110)
 
-            description = Text(create_frame, bg=white, fg=black, width=34, height=4)
+            description = Text(create_frame, bg=white, fg=black, width=34, height=4, highlightbackground=white, highlightcolor=white, border=0)
             description.place(x=10, y=130)     
 
             ## BOTÃO SE INSERÇÃO DE TAREFA
             insert_button = Button(create_frame, text='Enviar', command=up_db, width=10, height=1, bg=color1, fg=black, highlightbackground=color1, highlightcolor=color1, border=0, activebackground=color1, cursor='hand2', activeforeground=white)
-            insert_button.place(x=10, y=200)
+            insert_button.place(x=10, y=205)
 
         ## FUNÇÃO PARA DELETAR UMA TAREFA SELECIONADA
         def delete():
