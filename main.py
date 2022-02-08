@@ -94,6 +94,16 @@ def create():
 
 
 def update():
+
+    def up_db():
+        tarefa = task_entry.get()
+        data = day_combo.get()+'-'+month_combo.get()+'-'+year_combo.get()
+        descricao = description.get("1.0","end")
+        
+        vcon = datab.ConnectDB()
+        query = "UPDATE tasks SET task='"+tarefa+"', date='"+data+"', description='"+descricao+"' WHERE task"+task
+        datab.insert(vcon, query)
+
     ## FRAME DE ATUALIZAÇÃO DE TAREFA
     create_frame = Frame(window, width=300, height=244, bg=color3)
     create_frame.place(x=10, y=40)
@@ -136,6 +146,10 @@ def update():
     description = Text(create_frame, bg=white, fg=black, width=34, height=4)
     description.place(x=10, y=130)     
 
+    ## BOTÃO SE INSERÇÃO DE TAREFA
+    insert_button = Button(create_frame, text='Enviar', command=up_db, width=10, height=1, bg=color1, fg=black, highlightbackground=color1, highlightcolor=color1, border=0, activebackground=color1, cursor='hand2', activeforeground=white)
+    insert_button.place(x=10, y=200)
+
 def delete():
     selection = app.selection()[0]
     valores=app.item(selection, "values")
@@ -144,6 +158,7 @@ def delete():
     query = "DELETE FROM tasks WHERE task='"+task+"'"
     datab.remove(vcon, query)
     fill()
+
 
 
 

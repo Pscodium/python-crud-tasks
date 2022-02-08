@@ -44,3 +44,15 @@ def remove(connection, sql):
         print('Tarefa Removida')
     except Error as ex:
         print(ex)
+
+def intern(connection, sql):
+    try:
+        c= connection.cursor()
+        c.execute(sql)
+        connection.commit()
+        res=c.fetchone()
+        vcon.close()
+        print('Itens selecionados')
+    except Error as ex:
+        print(ex)
+    return res
