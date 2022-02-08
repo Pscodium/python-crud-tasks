@@ -21,6 +21,15 @@ window.title('Tarefas')
 window.resizable(False, False)
 window.configure(bg=white)
 
+def fill():
+    app.delete(*app.get_children())
+    vcon = datab.ConnectDB()
+    query = "SELECT task FROM tasks ORDER BY id"
+    lista = datab.fill(vcon, query)
+    for i in lista:
+            app.insert("","end",values=i)
+
+
 def create():
     def insert():
         tarefa = task_entry.get()
@@ -34,9 +43,10 @@ def create():
         month_combo.delete(0, END)
         year_combo.delete(0, END)
         description.delete("1.0", "end")
+        fill()
 
     ## FRAME DE CRIAÇÃO DE TAREFA
-    create_frame = Frame(window, width=300, height=250, bg=color1)
+    create_frame = Frame(window, width=300, height=244, bg=color1)
     create_frame.place(x=10, y=40)
 
     days = []
@@ -85,7 +95,7 @@ def create():
 
 def update():
     ## FRAME DE ATUALIZAÇÃO DE TAREFA
-    create_frame = Frame(window, width=300, height=250, bg=color3)
+    create_frame = Frame(window, width=300, height=244, bg=color3)
     create_frame.place(x=10, y=40)
 
     days = []
@@ -124,12 +134,16 @@ def update():
     description_label.place(x=10, y=110)
 
     description = Text(create_frame, bg=white, fg=black, width=34, height=4)
-    description.place(x=10, y=130)
+    description.place(x=10, y=130)     
 
-
-
-
-
+def delete():
+    selection = app.selection()[0]
+    valores=app.item(selection, "values")
+    task = valores[0]
+    vcon = datab.ConnectDB()
+    query = "DELETE FROM tasks WHERE task='"+task+"'"
+    datab.remove(vcon, query)
+    fill()
 
 
 
@@ -139,13 +153,16 @@ create.place(x=10, y=10)
 update = Button(window, text='Atualizar', activebackground=color3, command=update, bg=color3, fg=entry, cursor='hand2', border=0, highlightbackground=color3, activeforeground=black)
 update.place(x=78, y=10)
 
-delete = Button(window, text='Remover', activebackground=color2, command='', bg=color2, fg=entry, cursor='hand2', border=0, highlightbackground=color2, activeforeground=black)
+delete = Button(window, text='Remover', activebackground=color2, command=delete, bg=color2, fg=entry, cursor='hand2', border=0, highlightbackground=color2, activeforeground=black)
 delete.place(x=170, y=10)
 
 
 
+app = ttk.Treeview(window ,columns=('tarefas'), show='headings')
+app.column('tarefas', minwidth=0, width=250)
+app.heading('tarefas', text='TAREFAS')
+app.place(x=330, y=40)
 
 
-
-
+fill()
 window.mainloop()
