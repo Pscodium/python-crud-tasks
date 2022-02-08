@@ -1,11 +1,9 @@
-from copyreg import constructor
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
-from venv import create
-
-from tables import Description
 import datab
+from datetime import datetime
+from tkinter import messagebox
 
 
 white = '#ffffff'
@@ -38,11 +36,29 @@ class Inicial:
         def create():
             ## FUNÇÃO QUE INSERE ITEM CRIADO DENTRO DO BANCO DE DADOS
             def insert():
+                if task_entry.get()=="" or day_combo.get()=="" or year_combo.get()=="" or month_combo.get()=="": 
+                    messagebox.showinfo(title="ERRO", message="Digite todos os dados") 
+                    return
+                ## FUNÇÃO DE DATA DE CRIAÇÃO
+                data_hora = datetime.now()
+                data_hora_string = data_hora.strftime('%d/%m/%Y %H:%M')
+                
+
+                for i in range(12):
+                    m = month_combo.get()
+                    if self.months[i] == m:
+                        self.mesnum = i+1
+                        if self.mesnum<10:
+                            self.mesnum = '0'+str(self.mesnum)
+
                 tarefa = task_entry.get()
-                data = day_combo.get()+'-'+month_combo.get()+'-'+year_combo.get()
+                dia = str(day_combo.get())
+                ano = str(year_combo.get())
+                mes = str(self.mesnum)
+                data = dia+'/'+mes+'/'+ano
                 descricao = description.get("1.0","end")
                 vcon = datab.ConnectDB()
-                query = "INSERT INTO tasks (task, date, description) VALUES ('"+tarefa+"','"+data+"','"+descricao+"')"
+                query = "INSERT INTO tasks (task, date, description, created_at) VALUES ('"+tarefa+"','"+data+"','"+descricao+"', '"+data_hora_string+"')"
                 datab.insert(vcon, query)
                 task_entry.delete(0, END)
                 day_combo.delete(0, END)
@@ -56,11 +72,14 @@ class Inicial:
             create_frame.place(x=10, y=40)
 
             days = []
-            months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+            self.months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
             year = []
 
             for i in range(1, 32):
-                days.append(i)
+                if i<10:
+                    days.append('0'+str(i))
+                else:
+                    days.append(i)
 
             for i in range(1990, 2026):
                 year.append(i)
@@ -81,7 +100,7 @@ class Inicial:
             day_combo = ttk.Combobox(create_frame, values=days, width=3)
             day_combo.place(x=10, y=80)
 
-            month_combo = ttk.Combobox(create_frame, values=months, width=5)
+            month_combo = ttk.Combobox(create_frame, values=self.months, width=5)
             month_combo.place(x=55, y=80)
 
             year_combo = ttk.Combobox(create_frame, values=year, width=5)
@@ -102,24 +121,43 @@ class Inicial:
         def update():
             ## FUNÇÃO QUE GERA UMA ALTERAÇÃO NO ITEM SELECIONADO DENTRO DO BANC0 DE DADOS
             def up_db():
-                selection = self.app.selection()[0]
-                valores=self.app.item(selection, "values")
-                item = valores[0]
+                try:
+                    ## FUNÇÃO DE DATA DE CRIAÇÃO
+                    data_hora = datetime.now()
+                    data_hora_string = data_hora.strftime('%d/%m/%Y %H:%M')
 
-                tarefa = task_entry.get()
-                data = day_combo.get()+'-'+month_combo.get()+'-'+year_combo.get()
-                descricao = description.get("1.0","end")
-                
-                vcon = datab.ConnectDB()
-                query = "UPDATE tasks SET task='"+tarefa+"', date='"+data+"', description='"+descricao+"' WHERE task='"+item+"'"
-                datab.insert(vcon, query)
-                task_entry.delete(0, END)
-                day_combo.delete(0, END)
-                month_combo.delete(0, END)
-                year_combo.delete(0, END)
-                description.delete("1.0", "end")
-                fill()
-                
+                    selection = self.app.selection()[0]
+                    valores=self.app.item(selection, "values")
+                    item = valores[0]
+
+
+                    ## TRANSFORMANDO MESES EM NÚMEROS
+                    for i in range(12):
+                        m = month_combo.get()
+                        if months[i] == m:
+                            mesnum = i+1
+                            if mesnum<10:
+                                mesnum = '0'+str(mesnum)
+
+                    tarefa = task_entry.get()
+                    dia = str(day_combo.get())
+                    ano = str(year_combo.get())
+                    mes = str(mesnum)
+                    data = dia+'/'+mes+'/'+ano
+                    descricao = description.get("1.0","end")
+                    
+                    vcon = datab.ConnectDB()
+                    query = "UPDATE tasks SET task='"+tarefa+"', date='"+data+"', description='"+descricao+"', created_at='"+data_hora_string+"' WHERE task='"+item+"'"
+                    datab.insert(vcon, query)
+                    task_entry.delete(0, END)
+                    day_combo.delete(0, END)
+                    month_combo.delete(0, END)
+                    year_combo.delete(0, END)
+                    description.delete("1.0", "end")
+                    fill()
+                except:
+                    messagebox.showinfo(title="ERRO", message="Selecione uma tarefa")
+        
 
             ## FRAME DE ATUALIZAÇÃO DE TAREFA
             create_frame = Frame(self.window, width=300, height=244, bg=color3)
@@ -130,7 +168,10 @@ class Inicial:
             year = []
 
             for i in range(1, 32):
-                days.append(i)
+                if i<10:
+                    days.append('0'+str(i))
+                else:
+                    days.append(i)
 
             for i in range(1990, 2026):
                 year.append(i)
@@ -169,13 +210,16 @@ class Inicial:
 
         ## FUNÇÃO PARA DELETAR UMA TAREFA SELECIONADA
         def delete():
-            selection = self.app.selection()[0]
-            valores=self.app.item(selection, "values")
-            task = valores[0]
-            vcon = datab.ConnectDB()
-            query = "DELETE FROM tasks WHERE task='"+task+"'"
-            datab.remove(vcon, query)
-            fill()
+            try:
+                selection = self.app.selection()[0]
+                valores=self.app.item(selection, "values")
+                task = valores[0]
+                vcon = datab.ConnectDB()
+                query = "DELETE FROM tasks WHERE task='"+task+"'"
+                datab.remove(vcon, query)
+                fill()
+            except:
+                messagebox.showinfo(title="ERRO", message="Selecione uma tarefa")
 
 
         ## BOTÕES DE COMANDO
@@ -202,6 +246,7 @@ class Inicial:
     ## FUNÇÃO CHAMADA AO UTILIZAR DUPLO CLIQUE, ABRE O FRAME DE DESCRIÇÃO DE TAREFA
     def OnDoubleClick(self,event):
         
+        
 
         create_frame = Frame(self.window, width=300, height=244, bg=color)
         create_frame.place(x=10, y=40)
@@ -224,21 +269,29 @@ class Inicial:
         label_description = Label(create_frame, text='', bg=color, fg=black)
         label_description.place(x=10, y=130)
 
+        created_at_label = Label(create_frame, text="Criado em ", bg=white, fg=black, font=('Arial 10 bold'))
+        created_at_label.place(x=10, y=160)
+
+        label_created_at = Label(create_frame, text='', bg=color, fg=black)
+        label_created_at.place(x=10, y=180)
+
         ## TREEVIEW CRIADA PARA LISTAGEM DOS ITENS SEM ELEMENTOS DA TUPLA
-        app = ttk.Treeview(create_frame,columns=('tarefa','data','descrição'), show='headings')
+        app = ttk.Treeview(create_frame,columns=('tarefa','data','descrição','criado'), show='headings')
         app.column('tarefa', minwidth=0, width=70)
         app.column('data', minwidth=0, width=90)
         app.column('descrição', minwidth=0, width=90)
+        app.column('criado', minwidth=0, width=90)
         app.heading('tarefa', text='TAREFA')
         app.heading('data', text='DATA')
         app.heading('descrição', text='DESCRIÇÃO')
+        app.heading('criado', text='CRIADO')
         
         ## PEGA ITEM SELECIONADO DA TREEVIEW PRINCIPAL ORIENTADA À OBJETO E PESQUISA NA DATABASE ALGUMAS INFORMAÇÕES
         item = self.app.selection()[0]
         valores=self.app.item(item, "values")
         task = valores[0]
         vcon = datab.ConnectDB()
-        query = "SELECT task, date, description FROM tasks WHERE task='"+task+"'"
+        query = "SELECT task, date, description, created_at FROM tasks WHERE task='"+task+"'"
         lista = datab.read(vcon, query)
         ## ADICIONA ITENS CONSULTADOS NA DB DENTRO DA TREEVIEW CRIADA PARA USO ÚNICO
         for i in lista:
@@ -257,6 +310,7 @@ class Inicial:
         label_task['text'] = valores[0]
         label_date['text'] = valores[1]
         label_description['text'] = valores[2]
+        label_created_at['text']= valores[3]
 
 
 construct = Inicial()
